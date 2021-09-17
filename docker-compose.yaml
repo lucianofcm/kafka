@@ -88,35 +88,6 @@ services:
         /etc/confluent/docker/run &
         #
         sleep infinity
-  es01:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.14.1
-    container_name: es01
-    environment: 
-      - node.name=es01
-      - cluster.name=es-docker-cluster
-      - cluster.initial_master_nodes=es01
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=Xms512m -Xms512m"
-    ulimits: 
-      memlock:
-        soft: -1
-        hard: -1
-    volumes: 
-      - ./es01:/usr/share/elasticsearch/data
-    ports: 
-      - 9200:9200
-    extra_hosts: 
-      - "host.docker.internal:172.17.0.1"
-  kibana:
-    image: docker.elastic.co/kibana/kibana:7.14.1
-    container_name:  kib01
-    ports: 
-      - 5601:5601
-    environment: 
-      ELASTICSEARCH_URL: http://es01:9200
-      ELASTICSEARCH_HOST: '["http://es01:9200"]'
-    extra_hosts: 
-      - "host.docker.internal:172.17.0.1"
   mysql:
     image: mysql:5.7
     command: --server-id=1 --log-bin=/var/lib/mysql/mysql-bin.log
@@ -126,6 +97,7 @@ services:
       - ./.docker/mysql:/docker-entrypoint-initdb.d
     environment:
       - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=luc
   
   mongodb:
     image: mongo:4.4.4
@@ -133,3 +105,27 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=root
       - MONGO_INITDB_DATABASE=reports
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.7.0
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      discovery.type: "single-node"
+      ES_JAVA_OPTS: "-Xms2g -Xmx2g"
+      xpack.monitoring.enabled: "true"
+    volumes:
+      - ./esdata:/usr/share/elasticsearch/data
+      
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.7.0
+    ports:
+      - "5601:5601"
+    environment:
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+    depends_on:
+      - elasticsearch
+      
+volumes:
+  esdata:
+    driver: local
