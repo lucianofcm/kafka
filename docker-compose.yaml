@@ -90,11 +90,11 @@ services:
         sleep infinity
   mysql:
     image: mysql:5.7
-    command: --server-id=1 --log-bin=/var/lib/mysql/mysql-bin.log
+    command: --server-id=1 --log-bin=/var/lib/mysql/mysql-bin.log --init-file /data/init.sql
     ports:
       - "33006:3306"
     volumes:
-      - ./.docker/mysql:/docker-entrypoint-initdb.d
+      - ./init.sql:/data/init.sql
     environment:
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_DATABASE=luc
