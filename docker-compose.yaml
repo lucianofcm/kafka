@@ -88,23 +88,6 @@ services:
         /etc/confluent/docker/run &
         #
         sleep infinity
-  mysql:
-    image: mysql:5.7
-    command: --server-id=1 --log-bin=/var/lib/mysql/mysql-bin.log --init-file /data/init.sql
-    ports:
-      - "33006:3306"
-    volumes:
-      - ./init.sql:/data/init.sql
-    environment:
-      - MYSQL_ROOT_PASSWORD=root
-      - MYSQL_DATABASE=luc
-  
-  mongodb:
-    image: mongo:4.4.4
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=root
-      - MONGO_INITDB_ROOT_PASSWORD=root
-      - MONGO_INITDB_DATABASE=reports
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.7.0
     ports:
@@ -125,7 +108,24 @@ services:
       ELASTICSEARCH_URL: http://elasticsearch:9200
     depends_on:
       - elasticsearch
-      
+  mysql:
+    image: mysql:5.7
+    command: --server-id=1 --log-bin=/var/lib/mysql/mysql-bin.log --init-file /data/init.sql
+    ports:
+      - "33006:3306"
+    volumes:
+      - ./init.sql:/data/init.sql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=luc
+  
+  mongodb:
+    image: mongo:4.4.4
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=root
+      - MONGO_INITDB_DATABASE=reports
+
 volumes:
   esdata:
     driver: local
